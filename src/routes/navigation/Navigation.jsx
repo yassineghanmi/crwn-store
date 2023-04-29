@@ -1,20 +1,22 @@
-import React, { createContext, useContext, useRef } from "react";
+import React, { useRef } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { ReactComponent as Logo } from "../../assets/crown.svg";
 import CartDropdown from "../../components/cart-dropdown/CartDropdown";
 import CartIcon from "../../components/cart-icon/CartIcon";
-import { UserContext } from "../../contexts/UserContext";
-import { CartContext } from "../../contexts/CartContext";
 import { SignOutUser } from "../../utils/firebase/Firebase.utils";
-
 import "./Navigation.scss";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentUser } from "../../store/user/userAction";
+import { setIsCartOpen } from "../../store/cart/cartAction";
+import { selectIsCartOpen } from "../../store/cart/cartSelector";
 
 const Navigation = () => {
-  const { currentUser, setCurrentUser } = useContext(UserContext);
-  const { isCartOpen } = useContext(CartContext);
+  const currentUser = useSelector((state) => state.user.currentUser);
+  const isCartOpen = useSelector(selectIsCartOpen);
+  const dispatch = useDispatch();
   const onSignOut = async () => {
     await SignOutUser();
-    setCurrentUser(null);
+    dispatch(setCurrentUser(null));
   };
   const iconRef = useRef();
   return (

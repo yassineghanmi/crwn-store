@@ -42,8 +42,11 @@ const app = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
 export const auth = getAuth();
+
 export const SignInWithGooglePopup = () => signInWithPopup(auth, provider);
+
 export const db = getFirestore(app);
+
 export const createUserDocumentFromAuth = async (
   userAuth,
   additionalInformation
@@ -65,15 +68,17 @@ export const createUserDocumentFromAuth = async (
       console.log("fireStore problem");
     }
   }
-  return userDocRef;
+  //console.log(userSnapshot);
+  return userSnapshot;
 };
+
 export const createAuthUserWithEmailAndPassword = async (
   email,
   password,
   displayName
 ) => {
   if (!email || !password) return;
-  console.log("update 1");
+  //console.log("update 1");
   const response = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(response.user, {
     displayName,
@@ -90,6 +95,18 @@ export const SignOutUser = () => signOut(auth);
 
 export const onAuthStateChangedListener = (callback) => {
   onAuthStateChanged(auth, callback);
+};
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    onAuthStateChanged(
+      auth,
+      (user) => {
+        resolve(user);
+      },
+      reject
+    );
+  });
 };
 
 //Create Collections And Docs

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./SignInForm.scss";
 import FormInput from "../form-input/FormInput";
 import Button from "../button/Button";
@@ -7,6 +7,13 @@ import {
   createUserDocumentFromAuth,
   signInAuthWithEmailAndPassword,
 } from "../../utils/firebase/Firebase.utils";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  emailSignInStart,
+  googleSignInStart,
+} from "../../store/user/userAction";
+import { useNavigate } from "react-router-dom";
+import { current } from "@reduxjs/toolkit";
 
 const defaultFormFields = {
   email: "",
@@ -16,12 +23,19 @@ const defaultFormFields = {
 const SignInForm = () => {
   const [formFields, setFormfields] = useState(defaultFormFields);
   const { email, password } = formFields;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.currentUser);
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user]);
+
   const onFormSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const { user } = await signInAuthWithEmailAndPassword(email, password);
-      console.log(user, "sign in");
+      dispatch(emailSignInStart(email,password));
     } catch (e) {
       //console.log(e.code);
       switch (e.code) {
@@ -42,7 +56,7 @@ const SignInForm = () => {
   };
 
   const createGoogleUser = async () => {
-    await SignInWithGooglePopup();
+    dispatch(googleSignInStart());
   };
 
   const handleChange = (e) => {
@@ -72,7 +86,9 @@ const SignInForm = () => {
           onChange={handleChange}
         />
         <div className="buttons-container">
-          <Button type="submit">Sign In</Button>
+          <Button type="submit" onClick={onFormSubmit}>
+            Sign In
+          </Button>
           <Button type="button" buttonType="google" onClick={createGoogleUser}>
             Google Sign In
           </Button>
